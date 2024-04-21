@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Card Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+  }
+  #game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    grid-gap: 10px;
+  }
+  .card {
+    width: 100px;
+    height: 100px;
+    background-color: #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #points {
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+</style>
+</head>
+<body>
+<div id="points">Points: <span id="score">0</span></div>
+<div id="game-board"></div>
+<button onclick="resetGame()">Reset Game</button>
+<script>
+  const colors = ['#FF5733', '#33FF57', '#5733FF', '#FFFF33', '#33FFFF', '#FF33FF', '#FF5733', '#33FF57', '#5733FF', '#FFFF33', '#33FFFF', '#FF33FF'];
+  let cards = [];
+  let selectedCards = [];
+  let matchedPairs = 0;
+  let points = 0;
+  const scoreElement = document.getElementById('score');
+
+  function createGameBoard() {
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.innerHTML = '';
+    cards = [];
+    matchedPairs = 0;
+    selectedCards = [];
+    points = 0;
+    scoreElement.textContent = points;
+    const shuffledColors = shuffle(colors.concat(colors));
+
+    for (let i = 0; i < 16; i++) { // Change the loop limit to 16 for a 4x4 grid
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.color = shuffledColors[i];
+      card.addEventListener('click', selectCard);
+      gameBoard.appendChild(card);
+      cards.push(card);
+    }
+  }
+
+  function selectCard() {
+    if (selectedCards.length < 2 && !selectedCards.includes(this)) {
+      this.style.backgroundColor = this.dataset.color;
+      selectedCards.push(this);
+
+      if (selectedCards.length === 2) {
+        setTimeout(checkMatch, 500);
+      }
+    }
+  }
+
+  function checkMatch() {
+    const [card1, card2] = selectedCards;
+    if (card1.dataset.color === card2.dataset.color) {
+      card1.removeEventListener('click', selectCard);
+      card2.removeEventListener('click', selectCard);
+      matchedPairs++;
+      points++;
+      scoreElement.textContent = points;
+      if (matchedPairs === colors.length / 2) {
+        alert('Congratulations! You won!');
+      }
+    } else {
+      card1.style.backgroundColor = '#ccc';
+      card2.style.backgroundColor = '#ccc';
+    }
+    selectedCards = [];
+  }
+
+  function resetGame() {
+    createGameBoard();
+  }
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Initialize game board
+  createGameBoard();
+</script>
+</body>
+</html>
